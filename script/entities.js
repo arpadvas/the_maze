@@ -40,8 +40,7 @@ var characterTiles = [
                         {x: 0, y: 112}, {x: 16, y: 112}, {x: 32, y: 112}, {x: 48, y: 112}, {x: 64, y: 112}, {x: 80, y: 112}, {x: 96, y: 112}, {x: 112, y: 112}, {x: 128, y: 112}, {x: 144, y: 112}, {x: 160, y: 112}, {x: 176, y: 112}
                      ];
 
-function Entity(id, image, sourceX, sourceY, swidth, sheight, x, y, width, height) {
-    this.id = id;
+function Entity(image, sourceX, sourceY, swidth, sheight, x, y, width, height) {
     this.image = image;
     this.sourceX = sourceX;
     this.sourceY = sourceY;
@@ -58,16 +57,18 @@ Entity.prototype.render = function() {
     ctx.drawImage(this.image, this.sourceX, this.sourceY, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
 }
 
-function Hero(id, image, sourceX, sourceY, swidth, sheight, x, y, width, height, type) {
-    Entity.call(this, id, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
+function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, type) {
+    Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
     this.speed = 64;
     if (type === "nonWalkAble") {
       nonWalkableArea.push(new createNonWalkableArea(this.x, this.y, this.width, this.height));
     }
 }
 
-function Door(id, image, sourceX, sourceY, swidth, sheight, x, y, width, height, type) {
-    Entity.call(this, id, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
+var doors = [];
+
+function Door(image, sourceX, sourceY, swidth, sheight, x, y, width, height, type) {
+    Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
     if (type === "nonWalkAble") {
       nonWalkableArea.push(new createNonWalkableArea(this.x, this.y, this.width, this.height));
     }
@@ -78,6 +79,7 @@ function Door(id, image, sourceX, sourceY, swidth, sheight, x, y, width, height,
        } 
        else {
          doorTiles.frame = 5;
+         isDoorOpen = false;
        }
     }
 }

@@ -86,8 +86,6 @@ function crashWithLeft(wall) {
         }
     }
 
-//main functions/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 var gameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -110,7 +108,7 @@ var gameArea = {
 
 function main() {
     now = Date.now();
-	delta = now - then;
+	  delta = now - then;
     gameArea.clear();
     map.tileCreator(0);
     map.tileCreator(1);
@@ -118,12 +116,13 @@ function main() {
     update(delta/1000);
     hero.render();
     npc1.render();
-    door1.render();
-    door2.render();
+    doors[0].render();
+    doors[1].render();
     then = now;
     requestAnimationFrame(main);
 }
 
+var isDoorOpen = false;
 
 function update(modifier) {
     if (gameArea.key && gameArea.key == 37 && crashLeft === false) {
@@ -154,27 +153,66 @@ function update(modifier) {
     if (gameArea.key && gameArea.key == 79) {
       openDoor();
     }
+    if (isDoorOpen === true) {
+      openDoor2();
+    }
     if (gameArea.key === false) {
       hero.sourceX = 16;
       hero.sourceY = 0;
     }
 }
 
+function checkActionAble(item) {
+        var left = hero.x;
+        var right = hero.x + (hero.width);
+        var top = hero.y;
+        var bottom = hero.y + (hero.height);
+        var itemleft = item.x;
+        var itemright = item.x + (item.width);
+        var itemtop = item.y;
+        var itembottom = item.y + (item.height);
+        isItemClose = false;
+        if (top >= itembottom-3 && right < itemright+10 && left > itemleft-10 && bottom < itembottom+25) {
+           isItemClose = true;
+        }
+    }
+
+function makeItemWalkable(item) {
+  for (i = 0; i < nonWalkableArea.length; i += 1) {
+      if (nonWalkableArea[i].x === item.x && nonWalkableArea[i].y === item.y) {
+        nonWalkableArea.splice(i, 1);
+      }
+    }
+}
+
 function openDoor() {
-  //check which door should be opened
-  //invoke the right door
-  //remove door from nonwalkable area
-  door1.open();
-  door2.open();
+  for (i = 0; i < doors.length; i += 1) {
+      checkActionAble(doors[i]);
+      if (isItemClose === true) {
+        isDoorOpen = true;
+        break;
+      }
+    }
+}
+
+function openDoor2() {
+  for (i = 0; i < doors.length; i += 1) {
+      checkActionAble(doors[i]);
+      if (isItemClose === true) {
+        doors[i].open();
+        makeItemWalkable(doors[i]);
+        break;
+      }
+    }
 }
 
 function startGame() {
     then = Date.now();
     gameArea.start();
-    hero = new Hero(1, characterAtlas, 16, 0, 16, 16, 10, 10, 16, 16, "hero");
-    npc1 = new Hero(2, characterAtlas, 64, 0, 16, 16, 144, 112, 16, 16, "nonWalkAble");
-    door1 = new Door(1, otherAtlas, 0, 0, 16, 16, 160, 144, 16, 16, "nonWalkAble");
-    door2 = new Door(2, otherAtlas, 0, 0, 16, 16, 320, 144, 16, 16, "nonWalkAble");
+    hero = new Hero(characterAtlas, 16, 0, 16, 16, 10, 10, 16, 16, "hero");
+    npc1 = new Hero(characterAtlas, 64, 0, 16, 16, 144, 112, 16, 16, "nonWalkAble");
+    doors[0] = new Door(otherAtlas, 0, 0, 16, 16, 160, 144, 16, 16, "nonWalkAble");
+    doors[1] = new Door(otherAtlas, 0, 0, 16, 16, 320, 144, 16, 16, "nonWalkAble");
 }
 
 
