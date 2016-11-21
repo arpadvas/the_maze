@@ -1,4 +1,3 @@
-
 function collisionDetection() {
   for (i = 0; i < nonWalkableArea.length; i += 1) {
       crashWithLeft(nonWalkableArea[i]);
@@ -108,21 +107,30 @@ var gameArea = {
 
 function main() {
     now = Date.now();
-	  delta = now - then;
+    delta = now - then;
     gameArea.clear();
     map.tileCreator(0);
     map.tileCreator(1);
     collisionDetection();
     update(delta/1000);
+    renderItems();
     hero.render();
     npc1.render();
-    doors[0].render();
-    doors[1].render();
+    msg.zero();
+    msg.render();
     then = now;
     requestAnimationFrame(main);
 }
 
-var isDoorOpen = false;
+function renderItems() {
+  for (i = 0; i < items.length; i += 1) {
+      items[i].render();
+  }
+}
+
+var isItemOpen = false;
+var isItemSwitched = false;
+var isItemBroken = false;
 
 function update(modifier) {
     if (gameArea.key && gameArea.key == 37 && crashLeft === false) {
@@ -151,10 +159,22 @@ function update(modifier) {
       spriteTiles.frameBottom = (spriteTiles.frameBottom + 1) % spriteTiles.coordinatesBottom.length;
     } 
     if (gameArea.key && gameArea.key == 79) {
-      openDoor();
+      checkOpenable();
     }
-    if (isDoorOpen === true) {
-      openDoor2();
+    if (isItemOpen === true) {
+      openItem();
+    }
+    if (gameArea.key && gameArea.key == 83) {
+      checkSwitchable();
+    }
+    if (isItemSwitched === true) {
+      switchItem();
+    }
+    if (gameArea.key && gameArea.key == 75) {
+      checkKickable();
+    }
+    if (isItemBroken === true) {
+      kickItem();
     }
     if (gameArea.key === false) {
       hero.sourceX = 16;
@@ -173,7 +193,7 @@ function checkActionAble(item) {
         var itembottom = item.y + (item.height);
         isItemClose = false;
         if (top >= itembottom-3 && right < itemright+10 && left > itemleft-10 && bottom < itembottom+25) {
-           isItemClose = true;
+             isItemClose = true;   
         }
     }
 
@@ -185,22 +205,70 @@ function makeItemWalkable(item) {
     }
 }
 
-function openDoor() {
-  for (i = 0; i < doors.length; i += 1) {
-      checkActionAble(doors[i]);
+function checkOpenable() {
+  for (i = 0; i < items.length; i += 1) {
+      checkActionAble(items[i]);
+      if (isItemClose === true && (items[i].type === "door" || items[i].type === "chest")) {
+        isItemOpen = true;
+        break;
+      }
+      else if (isItemClose === true && (items[i].type != "door" || items[i].type != "chest")) {
+        msg.text = texts[1];
+      }
+    }
+}
+
+function openItem() {
+  for (i = 0; i < items.length; i += 1) {
+      checkActionAble(items[i]);
       if (isItemClose === true) {
-        isDoorOpen = true;
+        items[i].open();
+          if (items[i].type === "door") {
+            makeItemWalkable(items[i]);
+          }
         break;
       }
     }
 }
 
-function openDoor2() {
-  for (i = 0; i < doors.length; i += 1) {
-      checkActionAble(doors[i]);
+function checkSwitchable() {
+  for (i = 0; i < items.length; i += 1) {
+      checkActionAble(items[i]);
+      if (isItemClose === true && items[i].type === "switch") {
+        isItemSwitched = true;
+        break;
+      }
+    }
+}
+
+function switchItem() {
+  for (i = 0; i < items.length; i += 1) {
+      checkActionAble(items[i]);
       if (isItemClose === true) {
-        doors[i].open();
-        makeItemWalkable(doors[i]);
+        items[i].switch();
+        break;
+      }
+    }
+}
+
+function checkKickable() {
+  for (i = 0; i < items.length; i += 1) {
+      checkActionAble(items[i]);
+      if (isItemClose === true && items[i].type === "pot") {
+        isItemBroken = true;
+        break;
+      }
+    }
+}
+
+function kickItem() {
+  for (i = 0; i < items.length; i += 1) {
+      checkActionAble(items[i]);
+      if (isItemClose === true) {
+        items[i].kick();
+          if (items[i].type === "pot") {
+            makeItemWalkable(items[i]);
+          }
         break;
       }
     }
@@ -209,15 +277,12 @@ function openDoor2() {
 function startGame() {
     then = Date.now();
     gameArea.start();
-    hero = new Hero(characterAtlas, 16, 0, 16, 16, 10, 10, 16, 16, "hero");
-    npc1 = new Hero(characterAtlas, 64, 0, 16, 16, 144, 112, 16, 16, "nonWalkAble");
-    doors[0] = new Door(otherAtlas, 0, 0, 16, 16, 160, 144, 16, 16, "nonWalkAble");
-    doors[1] = new Door(otherAtlas, 0, 0, 16, 16, 320, 144, 16, 16, "nonWalkAble");
+    hero = new Hero(characterAtlas, 16, 0, 16, 16, 10, 10, 16, 16, 1, "hero");
+    npc1 = new Hero(characterAtlas, 64, 0, 16, 16, 144, 112, 16, 16, 1, "hero");
+    items[0] = new Item(otherAtlas, 0, 0, 16, 16, 160, 144, 16, 16, 1, "door");
+    items[1] = new Item(otherAtlas, 0, 0, 16, 16, 320, 144, 16, 16, 1, "door");
+    items[2] = new Item(otherAtlas, 96, 0, 16, 16, 352, 144, 16, 16, 1, "chest");
+    items[3] = new Item(otherAtlas, 48, 64, 16, 16, 384, 144, 16, 16, 1, "switch");
+    items[4] = new Item(otherAtlas, 144, 0, 16, 16, 80, 32, 16, 16, 1, "pot");
+    msg = new Message(texts[0], 100, 20);
 }
-
-
-
-
-
-
-

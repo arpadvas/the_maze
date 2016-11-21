@@ -1,16 +1,18 @@
 caReady = false;
 var characterAtlas = new Image();
 characterAtlas.onload = function () {
-	caReady = true;
+  caReady = true;
 };
 characterAtlas.src = "pics/characters.png";
+//characterAtlas.src = "https://s12.postimg.org/3sw8ds5t9/characters.png";
 
 oaReady = false;
 var otherAtlas = new Image();
 otherAtlas.onload = function () {
-	oaReady = true;
+  oaReady = true;
 };
 otherAtlas.src = "pics/things.png";
+//otherAtlas.src = "https://s16.postimg.org/bbnbkj21h/things.png";
 
 
 var spriteTiles = {
@@ -26,6 +28,16 @@ var spriteTiles = {
 
 var doorTiles = {
   coordinates : [0, 16, 16, 32, 32, 48],
+  frame : 0
+};
+
+var potTiles = {
+  coordinates : [0, 16, 16, 32, 32, 48],
+  frame : 0
+};
+
+var switchTiles = {
+  coordinates : [48, 64, 64, 80],
   frame : 0
 };
 
@@ -57,19 +69,21 @@ Entity.prototype.render = function() {
     ctx.drawImage(this.image, this.sourceX, this.sourceY, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
 }
 
-function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, type) {
+function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type) {
     Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
     this.speed = 64;
-    if (type === "nonWalkAble") {
+    this.type = type;
+    if (walkable === 1) {
       nonWalkableArea.push(new createNonWalkableArea(this.x, this.y, this.width, this.height));
     }
 }
 
-var doors = [];
+var items = [];
 
-function Door(image, sourceX, sourceY, swidth, sheight, x, y, width, height, type) {
+function Item(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type) {
     Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
-    if (type === "nonWalkAble") {
+    this.type = type;
+    if (walkable === 1) {
       nonWalkableArea.push(new createNonWalkableArea(this.x, this.y, this.width, this.height));
     }
     this.open = function () {
@@ -79,10 +93,52 @@ function Door(image, sourceX, sourceY, swidth, sheight, x, y, width, height, typ
        } 
        else {
          doorTiles.frame = 5;
-         isDoorOpen = false;
+         isItemOpen = false;
+       }
+    }
+    this.switch = function () {
+       this.sourceX = switchTiles.coordinates[switchTiles.frame];
+       if (switchTiles.frame != 3) {
+         switchTiles.frame = (switchTiles.frame + 1);
+       } 
+       else {
+         switchTiles.frame = 3;
+         isItemSwitched = false;
+       }
+    }
+    this.kick = function () {
+       this.sourceY = potTiles.coordinates[potTiles.frame];
+       if (potTiles.frame != 5) {
+         potTiles.frame = (potTiles.frame + 1);
+       } 
+       else {
+         potTiles.frame = 5;
+         isItemBroken = false;
        }
     }
 }
 
-Door.prototype = Object.create(Entity.prototype);
+Item.prototype = Object.create(Entity.prototype);
 Hero.prototype = Object.create(Entity.prototype);
+
+var texts = [" ", "You can't open this item"];
+var textFrame = 0
+
+function Message(text, x, y) {
+    this.text = text;
+    this.x = x;
+    this.y = y;
+}
+
+Message.prototype.render = function() {
+    ctx = gameArea.context;
+    ctx.fillText(this.text, this.x, this.y);
+}
+
+Message.prototype.zero = function() {
+    textFrame += 1;
+    if (textFrame === 100) {
+      textFrame = 0;
+      msg.text = texts[0];
+    }
+}
