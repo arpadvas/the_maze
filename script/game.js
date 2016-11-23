@@ -109,6 +109,7 @@ function main() {
     now = Date.now();
     delta = now - then;
     gameArea.clear();
+    nonWalkableArea = [];
     map.tileCreator(0);
     map.tileCreator(1);
     collisionDetection();
@@ -185,6 +186,9 @@ function update(modifier) {
     }
     if (gameArea.key && gameArea.key == 84) {
       talkToNpc();
+    }
+    if (gameArea.key && gameArea.key == 65) {
+      alert(items.length);
     }
     if (gameArea.key === false) {
       hero.sourceX = 16;
@@ -313,7 +317,8 @@ function startGame() {
     then = Date.now();
     gameArea.start();
     hero = new Hero(characterAtlas, 16, 0, 16, 16, 0, 112, 16, 16, 0, "hero");
-    npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 272, 160, 16, 16, 1, "npc");
+    //npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 272, 160, 16, 16, 1, "npc");
+    npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 20, 112, 16, 16, 1, "npc");
     items[0] = new Item(otherAtlas, 0, 0, 16, 16, 64, 304, 16, 16, 1, "door");
     items[1] = new Item(otherAtlas, 0, 0, 16, 16, 288, 192, 16, 16, 1, "door");
     items[2] = new Item(otherAtlas, 96, 0, 16, 16, 48, 272, 16, 16, 1, "chest");
@@ -321,6 +326,6 @@ function startGame() {
     items[4] = new Item(otherAtlas, 144, 0, 16, 16, 464, 176, 16, 16, 1, "pot");
     items[5] = new Item(otherAtlas, 0, 64, 16, 16, 176, 336, 16, 16, 1, "torch");
     items[6] = new Item(otherAtlas, 0, 0, 16, 16, 416, 64, 16, 16, 1, "door");
-    msgs[0] = new Message(texts[0], 300, 20);
-    msgs[1] = new Message(texts[0], 300, 35);
+    msgs[0] = new Message(texts[0], 150, 15);
+    msgs[1] = new Message(texts[0], 150, 35);
 }
