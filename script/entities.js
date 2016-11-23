@@ -141,7 +141,7 @@ var texts = [
              "What a luck! You found an emerald key!", 
              "Hello my friend! You will need this", 
              "password to find your way out: 'Gloria'.",
-             "There is no one to talk to!"
+             "There is no one to talk to!",
             ];
 var textFrame = 0
 
@@ -155,6 +155,8 @@ function Message(text, x, y) {
 
 Message.prototype.render = function() {
     ctx = gameArea.context;
+    ctx.font = "12px Merienda"
+    ctx.fillStyle = "blue";
     ctx.fillText(this.text, this.x, this.y);
 }
 
