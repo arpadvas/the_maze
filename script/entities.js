@@ -41,6 +41,11 @@ var switchTiles = {
   frame : 0
 };
 
+var torchTiles = {
+  coordinates : [0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32],
+  frame : 0
+};
+
 var characterTiles = [
                         {x: 0, y: 0}, {x: 16, y: 0}, {x: 32, y: 0}, {x: 48, y: 0}, {x: 64, y: 0}, {x: 80, y: 0}, {x: 96, y: 0}, {x: 112, y: 0}, {x: 128, y: 0}, {x: 144, y: 0}, {x: 160, y: 0}, {x: 176, y: 0},
                         {x: 0, y: 16}, {x: 16, y: 16}, {x: 32, y: 16}, {x: 48, y: 16}, {x: 64, y: 16}, {x: 80, y: 16}, {x: 96, y: 16}, {x: 112, y: 16}, {x: 128, y: 16}, {x: 144, y: 16}, {x: 160, y: 16}, {x: 176, y: 16},
@@ -69,6 +74,8 @@ Entity.prototype.render = function() {
     ctx.drawImage(this.image, this.sourceX, this.sourceY, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
 }
 
+var npcs = [];
+
 function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type) {
     Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
     this.speed = 64;
@@ -96,6 +103,10 @@ function Item(image, sourceX, sourceY, swidth, sheight, x, y, width, height, wal
          isItemOpen = false;
        }
     }
+    this.burn = function () {
+       this.sourceX = torchTiles.coordinates[torchTiles.frame];
+       torchTiles.frame = (torchTiles.frame + 1) % torchTiles.coordinates.length;
+    }
     this.switch = function () {
        this.sourceX = switchTiles.coordinates[switchTiles.frame];
        if (switchTiles.frame != 3) {
@@ -121,8 +132,20 @@ function Item(image, sourceX, sourceY, swidth, sheight, x, y, width, height, wal
 Item.prototype = Object.create(Entity.prototype);
 Hero.prototype = Object.create(Entity.prototype);
 
-var texts = [" ", "You can't open this item"];
+var texts = [
+             " ", 
+             "You can't open this item!", 
+             "There is nothing to switch here!", 
+             "Do you wanna break your leg?", 
+             "What a luck! You found a ruby key!", 
+             "What a luck! You found an emerald key!", 
+             "Hello my friend! You will need this", 
+             "password to find your way out: 'Gloria'.",
+             "There is no one to talk to!"
+            ];
 var textFrame = 0
+
+var msgs = [];
 
 function Message(text, x, y) {
     this.text = text;
@@ -139,6 +162,7 @@ Message.prototype.zero = function() {
     textFrame += 1;
     if (textFrame === 100) {
       textFrame = 0;
-      msg.text = texts[0];
+      msgs[0].text = texts[0];
+      msgs[1].text = texts[0];
     }
 }
