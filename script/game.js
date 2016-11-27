@@ -1,3 +1,5 @@
+
+
 function collisionDetection() {
   for (i = 0; i < nonWalkableArea.length; i += 1) {
       crashWithLeft(nonWalkableArea[i]);
@@ -109,23 +111,26 @@ function main() {
     now = Date.now();
     delta = now - then;
     gameArea.clear();
-    nonWalkableArea = [];
     map.tileCreator(0);
     map.tileCreator(1);
     collisionDetection();
     update(delta/1000);
     renderItems();
-    items[5].burn();
     hero.render();
     npcs[0].render();
     renderMsgs();
     then = now;
-    requestAnimationFrame(main);
+    if (isGameOver === false) {
+      requestAnimationFrame(main);
+    }
 }
 
 function renderItems() {
   for (i = 0; i < items.length; i += 1) {
       items[i].render();
+      if (items[i].type === "torch") {
+        items[i].burn();
+      }
   }
 }
 
@@ -139,32 +144,40 @@ function renderMsgs() {
 var isItemOpen = false;
 var isItemSwitched = false;
 var isItemBroken = false;
+var isGameOver = false;
 
 function update(modifier) {
+    if (hero.y < 0) {
+      isGameOver = true;
+      msgs[0].text = texts[14];
+    }
     if (gameArea.key && gameArea.key == 37 && crashLeft === false) {
       hero.sourceY = characterTiles[14].y;
       hero.sourceX = spriteTiles.coordinatesLeft[spriteTiles.frameLeft];
       hero.x -= hero.speed * modifier;
       spriteTiles.frameLeft = (spriteTiles.frameLeft + 1) % spriteTiles.coordinatesLeft.length;
+      sounds[4].play();
     }
     if (gameArea.key && gameArea.key == 39 && crashRight === false) {
       hero.sourceY = characterTiles[24].y;
       hero.sourceX = spriteTiles.coordinatesRight[spriteTiles.frameRight];
       hero.x += hero.speed * modifier;
       spriteTiles.frameRight = (spriteTiles.frameRight + 1) % spriteTiles.coordinatesRight.length;
-      
+      sounds[4].play();
     }
     if (gameArea.key && gameArea.key == 38 && crashTop === false) {
       hero.sourceY = characterTiles[37].y;
       hero.sourceX = spriteTiles.coordinatesTop[spriteTiles.frameTop];
       hero.y -= hero.speed * modifier; 
       spriteTiles.frameTop = (spriteTiles.frameTop + 1) % spriteTiles.coordinatesTop.length;
+      sounds[4].play();
     }
     if (gameArea.key && gameArea.key == 40 && crashBottom === false) {
       hero.sourceY = characterTiles[0].y;
       hero.sourceX = spriteTiles.coordinatesBottom[spriteTiles.frameBottom];
       hero.y += hero.speed * modifier; 
       spriteTiles.frameBottom = (spriteTiles.frameBottom + 1) % spriteTiles.coordinatesBottom.length;
+      sounds[4].play();
     } 
     if (gameArea.key && gameArea.key == 79) {
       checkOpenable();
@@ -190,6 +203,11 @@ function update(modifier) {
     if (gameArea.key && gameArea.key == 65) {
       alert(items.length);
     }
+    if (gameArea.key && gameArea.key == 72) {
+      msgs[2].text = texts[12];
+      msgs[3].text = texts[13];
+      textFrame = -500;
+    }
     if (gameArea.key === false) {
       hero.sourceX = 16;
       hero.sourceY = 0;
@@ -206,7 +224,10 @@ function checkActionAble(item) {
         var itemtop = item.y;
         var itembottom = item.y + (item.height);
         isItemClose = false;
-        if (top >= itembottom-3 && right < itemright+10 && left > itemleft-10 && bottom < itembottom+25) {
+        if ((top >= itembottom-3 && right < itemright+10 && left > itemleft-10 && bottom < itembottom+25) ||
+            (right < itemright+10 && left > itemleft-10 && bottom <= itemtop+3 && top > itemtop-25 ) || 
+            (top > itemtop-10 && bottom < itembottom+10 && left >= itemright-3 && right < itemright+25) ||
+            (top > itemtop-10 && bottom < itembottom+10 && right <= itemleft+3 && left > itemleft-25)) {
              isItemClose = true;   
         }
     }
@@ -223,9 +244,11 @@ function talkToNpc() {
   for (i = 0; i < npcs.length; i += 1) {
       checkActionAble(npcs[i]);
       if (isItemClose === true && npcs[i].type === "npc") {
+        npcs[i].acter();
+        afterActon();
         msgs[0].text = texts[6];
         msgs[1].text = texts[7];
-        textFrame = -300;
+        textFrame = -400;
         break;
       }
       else if (isItemClose === true && npcs[i].type != "npc") {
@@ -252,14 +275,28 @@ function checkOpenable() {
 function openItem() {
   for (i = 0; i < items.length; i += 1) {
       checkActionAble(items[i]);
-      if (isItemClose === true) {
+      if (isItemClose === true && items[i].doable === true) {
+        if (items[i].type === "door") {
+            sounds[1].play();
+          }
+        if (items[i].type === "chest") {
+            sounds[2].play();
+          }
         items[i].open();
+        items[i].acter();
+        afterActon();
           if (items[i].type === "door") {
             makeItemWalkable(items[i]);
           }
         break;
       }
-    }
+      else if (isItemClose === true && items[i].doable === false) {
+        isItemOpen = false;
+        msgs[0].text = texts[9];
+        textFrame = 0;
+      }
+  }
+    
 }
 
 function checkSwitchable() {
@@ -279,9 +316,17 @@ function checkSwitchable() {
 function switchItem() {
   for (i = 0; i < items.length; i += 1) {
       checkActionAble(items[i]);
-      if (isItemClose === true) {
+      if (isItemClose === true && items[i].doable === true) {
+        sounds[3].play();
         items[i].switch();
+        items[i].acter();
+        afterActon();
         break;
+      }
+      else if (isItemClose === true && items[i].doable === false){
+        isItemSwitched = false;
+        msgs[0].text = texts[10];
+        textFrame = 0;
       }
     }
 }
@@ -304,7 +349,10 @@ function kickItem() {
   for (i = 0; i < items.length; i += 1) {
       checkActionAble(items[i]);
       if (isItemClose === true) {
+        sounds[0].play();
         items[i].kick();
+        items[i].acter();
+        afterActon();
           if (items[i].type === "pot") {
             makeItemWalkable(items[i]);
           }
@@ -313,19 +361,47 @@ function kickItem() {
     }
 }
 
+function afterActon() {
+  if (npcs[0].acted === 1) {
+    items[3].doable = true;
+  }
+  if (items[3].acted === 1) {
+    items[0].doable = true;
+  }
+  if (items[4].acted === 1) {
+    items[2].doable = true;
+  }
+  if (items[2].acted === 1) {
+    items[6].doable = true;
+  }
+}
+
+
 function startGame() {
+    sounds[0] = new Sound("sounds/jarbreak.wav", 1, false);
+    sounds[1] = new Sound("sounds/door.wav", 1, false);
+    sounds[2] = new Sound("sounds/chestbig.wav", 1, false);
+    sounds[3] = new Sound("sounds/switch.wav", 1, false);
+    sounds[4] = new Sound("sounds/foot.wav", 1, false);
+    sounds[5] = new Sound("sounds/background.mp3", 1, true);
     then = Date.now();
     gameArea.start();
-    hero = new Hero(characterAtlas, 16, 0, 16, 16, 0, 112, 16, 16, 0, "hero");
-    //npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 272, 160, 16, 16, 1, "npc");
-    npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 20, 112, 16, 16, 1, "npc");
-    items[0] = new Item(otherAtlas, 0, 0, 16, 16, 64, 304, 16, 16, 1, "door");
-    items[1] = new Item(otherAtlas, 0, 0, 16, 16, 288, 192, 16, 16, 1, "door");
-    items[2] = new Item(otherAtlas, 96, 0, 16, 16, 48, 272, 16, 16, 1, "chest");
-    items[3] = new Item(otherAtlas, 48, 64, 16, 16, 320, 368, 16, 16, 1, "switch");
-    items[4] = new Item(otherAtlas, 144, 0, 16, 16, 464, 176, 16, 16, 1, "pot");
-    items[5] = new Item(otherAtlas, 0, 64, 16, 16, 176, 336, 16, 16, 1, "torch");
-    items[6] = new Item(otherAtlas, 0, 0, 16, 16, 416, 64, 16, 16, 1, "door");
-    msgs[0] = new Message(texts[0], 150, 15);
-    msgs[1] = new Message(texts[0], 150, 35);
+    map.tilePusher(0);
+    hero = new Hero(characterAtlas, 16, 0, 16, 16, 0, 112, 16, 16, 0, "hero", 0);
+    npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 272, 160, 16, 16, 1, "npc", 0);
+    items[0] = new Item(otherAtlas, 0, 0, 16, 16, 64, 304, 16, 16, 1, "door", false, 0);
+    items[1] = new Item(otherAtlas, 0, 0, 16, 16, 288, 192, 16, 16, 1, "door", true, 0);
+    items[2] = new Item(otherAtlas, 96, 0, 16, 16, 464, 176, 16, 16, 1, "chest", false, 0);
+    items[3] = new Item(otherAtlas, 48, 64, 16, 16, 320, 368, 16, 16, 1, "switch", false, 0);
+    items[4] = new Item(otherAtlas, 144, 0, 16, 16, 48, 272, 16, 16, 1, "pot", true, 0);
+    items[5] = new Item(otherAtlas, 0, 64, 16, 16, 176, 336, 16, 16, 1, "torch", true, 0);
+    items[6] = new Item(otherAtlas, 0, 0, 16, 16, 416, 64, 16, 16, 1, "door", false, 0);
+    items[7] = new Item(otherAtlas, 0, 64, 16, 16, 48, 336, 16, 16, 1, "torch", true, 0);
+    msgs[0] = new Message(texts[0], 140, 15);
+    msgs[1] = new Message(texts[0], 140, 35);
+    msgs[2] = new Message(texts[0], 10, 480);
+    msgs[3] = new Message(texts[0], 10, 500);
+    msgs[2].text = texts[11];
+    textFrame = -600;
+    sounds[5].play();
 }
