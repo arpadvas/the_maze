@@ -19,7 +19,7 @@ var itemAtlas = new Image();
 itemAtlas.onload = function () {
   iaReady = true;
 };
-otherAtlas.src = "pics/things.png";
+itemAtlas.src = "pics/items.png";
 //itemAtlas.src = "https://s21.postimg.org/5gb1bt56v/items.png";
 
 var spriteTiles = {
