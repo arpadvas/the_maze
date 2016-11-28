@@ -14,6 +14,13 @@ otherAtlas.onload = function () {
 otherAtlas.src = "pics/things.png";
 //otherAtlas.src = "https://s16.postimg.org/bbnbkj21h/things.png";
 
+iaReady = false;
+var itemAtlas = new Image();
+itemAtlas.onload = function () {
+  iaReady = true;
+};
+otherAtlas.src = "pics/things.png";
+//itemAtlas.src = "https://s21.postimg.org/5gb1bt56v/items.png";
 
 var spriteTiles = {
   coordinatesRight : [0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32],
@@ -143,17 +150,18 @@ var texts = [
              "You can't open this item!", 
              "There is nothing to switch here!", 
              "Do you wanna break your leg?", 
-             "What a luck! You found a ruby key!", 
-             "What a luck! You found an emerald key!", 
-             "Hello my friend! You will need this", 
-             "password to find your way out: 'Gloria'.",
+             "What a luck! You found a bronze key!", 
+             "What a luck! You found a silver key!", 
+             "The monk gives you a parchment with one word on it:", 
+             "'Gloria'. You will use this password when needed!",
              "There is no one to talk to!",
              "You don't seem to be having the right key!",
              "To use it find the password first!",
              "Press H for help!",
              "To control your character press narrow keys!",
              "Open: 'O', Switch: 'S', Talk: 'T', Kick: 'K'",
-             "You made it to get out! Hats off to you! :)"
+             "You made it to get out! Hats off to you! :)",
+             "Sorry Sir but I can't help you more..."
             ];
 var textFrame = 0
 
