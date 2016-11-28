@@ -182,7 +182,7 @@ Message.prototype.render = function() {
 
 Message.prototype.zero = function() {
     textFrame += 1;
-    if (textFrame === 200) {
+    if (textFrame === 300) {
       textFrame = 0;
       msgs[0].text = texts[0];
       msgs[1].text = texts[0];
