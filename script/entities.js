@@ -19,8 +19,8 @@ var itemAtlas = new Image();
 itemAtlas.onload = function () {
   iaReady = true;
 };
-itemAtlas.src = "pics/items.png";
-//itemAtlas.src = "https://s21.postimg.org/5gb1bt56v/items.png";
+//itemAtlas.src = "pics/items.png";
+itemAtlas.src = "https://s21.postimg.org/5gb1bt56v/items.png";
 
 var spriteTiles = {
   coordinatesRight : [0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32],
