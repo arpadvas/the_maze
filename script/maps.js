@@ -4,7 +4,6 @@ tileAtlas.onload = function () {
   taReady = true;
 };
 tileAtlas.src = "pics/basictiles.png";
-//tileAtlas.src = "https://s14.postimg.org/fiqkv6wmp/basictiles.png";
 
 var mapTiles = [
               {x: 0, y: 0}, {x: 16, y: 0}, {x: 32, y: 0}, {x: 48, y: 0}, {x: 64, y: 0}, {x: 80, y: 0}, {x: 96, y: 0}, {x: 112, y: 0},

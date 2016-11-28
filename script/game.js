@@ -202,9 +202,6 @@ function update(modifier) {
     if (gameArea.key && gameArea.key == 84) {
       talkToNpc();
     }
-    if (gameArea.key && gameArea.key == 65) {
-      alert(items.length);
-    }
     if (gameArea.key && gameArea.key == 72) {
       msgs[2].text = texts[12];
       msgs[3].text = texts[13];

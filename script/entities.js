@@ -4,7 +4,6 @@ characterAtlas.onload = function () {
   caReady = true;
 };
 characterAtlas.src = "pics/characters.png";
-//characterAtlas.src = "https://s12.postimg.org/3sw8ds5t9/characters.png";
 
 oaReady = false;
 var otherAtlas = new Image();
@@ -12,15 +11,13 @@ otherAtlas.onload = function () {
   oaReady = true;
 };
 otherAtlas.src = "pics/things.png";
-//otherAtlas.src = "https://s16.postimg.org/bbnbkj21h/things.png";
 
 iaReady = false;
 var itemAtlas = new Image();
 itemAtlas.onload = function () {
   iaReady = true;
 };
-//itemAtlas.src = "pics/items.png";
-itemAtlas.src = "https://s21.postimg.org/5gb1bt56v/items.png";
+itemAtlas.src = "pics/items.png";
 
 var spriteTiles = {
   coordinatesRight : [0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32],
