@@ -158,7 +158,7 @@ var texts = [
              "You don't seem to be having the right key!",
              "To use it find the password first!",
              "Press H for help!",
-             "To control your character press narrow keys!",
+             "To control your character press arrow keys!",
              "Open: 'O', Switch: 'S', Talk: 'T', Kick: 'K'",
              "You made it to get out! Hats off to you! :)",
              "Sorry Sir but I can't help you more..."
