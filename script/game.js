@@ -127,10 +127,12 @@ function main() {
 
 function renderItems() {
   for (i = 0; i < items.length; i += 1) {
-      items[i].render();
-      if (items[i].type === "torch") {
-        items[i].burn();
-      }
+      if (items[i].acted === 0 || items[i].acted === 1) {
+        items[i].render();
+        if (items[i].type === "torch") {
+          items[i].burn();
+        }
+      }  
   }
 }
 
@@ -206,7 +208,7 @@ function update(modifier) {
     if (gameArea.key && gameArea.key == 72) {
       msgs[2].text = texts[12];
       msgs[3].text = texts[13];
-      textFrame = -500;
+      textFrame = -600;
     }
     if (gameArea.key === false) {
       hero.sourceX = 16;
@@ -246,9 +248,6 @@ function talkToNpc() {
       if (isItemClose === true && npcs[i].type === "npc") {
         npcs[i].acter();
         afterActon();
-        msgs[0].text = texts[6];
-        msgs[1].text = texts[7];
-        textFrame = -400;
         break;
       }
       else if (isItemClose === true && npcs[i].type != "npc") {
@@ -361,18 +360,44 @@ function kickItem() {
     }
 }
 
+var stepOne = true;
+var stepTwo = true;
+var stepThree = true;
+var stepFour = true;
+var stepFive = true;
+
 function afterActon() {
-  if (npcs[0].acted === 1) {
+  if (npcs[0].acted === 1 && stepOne) {
+    stepOne = false;
     items[3].doable = true;
+    items[10].acted = 1;
+    msgs[0].text = texts[6];
+    msgs[1].text = texts[7];
+    textFrame = -1000;
   }
-  if (items[3].acted === 1) {
+  if (items[3].acted === 1 && stepTwo) {
+    stepTwo = false;
     items[0].doable = true;
+    items[10].acted = 2;
   }
-  if (items[4].acted === 1) {
+  if (items[4].acted === 1 && stepThree) {
+    stepThree = false;
     items[2].doable = true;
+    items[8].acted = 1;
+    msgs[0].text = texts[4];
+    textFrame = 0;
   }
-  if (items[2].acted === 1) {
+  if (items[2].acted === 1 && stepFour) {
+    stepFour = false;
     items[6].doable = true;
+    items[8].acted = 2;
+    items[9].acted = 1;
+    msgs[0].text = texts[5];
+    textFrame = 0;
+  }
+  if (items[6].acted === 1 && stepFive) {
+    stepFive = false;
+    items[9].acted = 2;
   }
 }
 
@@ -387,6 +412,7 @@ function startGame() {
     then = Date.now();
     gameArea.start();
     map.tilePusher(0);
+    map.tilePusher(1);
     hero = new Hero(characterAtlas, 16, 0, 16, 16, 0, 112, 16, 16, 0, "hero", 0);
     npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 272, 160, 16, 16, 1, "npc", 0);
     items[0] = new Item(otherAtlas, 0, 0, 16, 16, 64, 304, 16, 16, 1, "door", false, 0);
@@ -397,6 +423,17 @@ function startGame() {
     items[5] = new Item(otherAtlas, 0, 64, 16, 16, 176, 336, 16, 16, 1, "torch", true, 0);
     items[6] = new Item(otherAtlas, 0, 0, 16, 16, 416, 64, 16, 16, 1, "door", false, 0);
     items[7] = new Item(otherAtlas, 0, 64, 16, 16, 48, 336, 16, 16, 1, "torch", true, 0);
+    items[8] = new Item(itemAtlas, 96, 0, 32, 32, 16, 16, 32, 32, 0, "item", false, 2);
+    items[9] = new Item(itemAtlas, 128, 0, 32, 32, 48, 16, 32, 32, 0, "item", false, 2);
+    items[10] = new Item(itemAtlas, 192, 32, 32, 32, 80, 16, 32, 32, 0, "item", false, 2);
+    items[11] = new Item(otherAtlas, 0, 64, 16, 16, 256, 256, 16, 16, 1, "torch", true, 0);
+    items[12] = new Item(otherAtlas, 0, 64, 16, 16, 304, 256, 16, 16, 1, "torch", true, 0);
+    items[13] = new Item(otherAtlas, 0, 64, 16, 16, 176, 272, 16, 16, 1, "torch", true, 0);
+    items[14] = new Item(otherAtlas, 144, 0, 16, 16, 240, 368, 16, 16, 1, "pot", true, 0);
+    items[15] = new Item(otherAtlas, 144, 0, 16, 16, 240, 432, 16, 16, 1, "pot", true, 0);
+    items[16] = new Item(otherAtlas, 96, 0, 16, 16, 240, 64, 16, 16, 1, "chest", true, 0);
+    items[17] = new Item(otherAtlas, 96, 0, 16, 16, 464, 224, 16, 16, 1, "chest", false, 0);
+    items[18] = new Item(otherAtlas, 48, 64, 16, 16, 336, 160, 16, 16, 1, "switch", true, 0);
     msgs[0] = new Message(texts[0], 140, 15);
     msgs[1] = new Message(texts[0], 140, 35);
     msgs[2] = new Message(texts[0], 10, 480);
