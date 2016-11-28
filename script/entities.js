@@ -57,7 +57,7 @@ var characterTiles = [
                         {x: 0, y: 112}, {x: 16, y: 112}, {x: 32, y: 112}, {x: 48, y: 112}, {x: 64, y: 112}, {x: 80, y: 112}, {x: 96, y: 112}, {x: 112, y: 112}, {x: 128, y: 112}, {x: 144, y: 112}, {x: 160, y: 112}, {x: 176, y: 112}
                      ];
 
-function Entity(image, sourceX, sourceY, swidth, sheight, x, y, width, height) {
+function Entity(image, sourceX, sourceY, swidth, sheight, x, y, width, height, acted) {
     this.image = image;
     this.sourceX = sourceX;
     this.sourceY = sourceY;
@@ -67,6 +67,7 @@ function Entity(image, sourceX, sourceY, swidth, sheight, x, y, width, height) {
     this.sheight = sheight;
     this.x = x;
     this.y = y;
+    this.acted = acted;
 }
 
 Entity.prototype.render = function() {
@@ -74,10 +75,14 @@ Entity.prototype.render = function() {
     ctx.drawImage(this.image, this.sourceX, this.sourceY, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
 }
 
+Entity.prototype.acter = function() {
+    this.acted = 1;
+}
+
 var npcs = [];
 
-function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type) {
-    Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
+function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type, acted) {
+    Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height, acted);
     this.speed = 64;
     this.type = type;
     if (walkable === 1) {
@@ -87,9 +92,10 @@ function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, wal
 
 var items = [];
 
-function Item(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type) {
-    Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height);
+function Item(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type, doable, acted) {
+    Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height, acted);
     this.type = type;
+    this.doable = doable;
     if (walkable === 1) {
       nonWalkableArea.push(new createNonWalkableArea(this.x, this.y, this.width, this.height));
     }
@@ -142,6 +148,12 @@ var texts = [
              "Hello my friend! You will need this", 
              "password to find your way out: 'Gloria'.",
              "There is no one to talk to!",
+             "You don't seem to be having the right key!",
+             "To use it find the password first!",
+             "Press H for help!",
+             "To control your character press narrow keys!",
+             "Open: 'O', Switch: 'S', Talk: 'T', Kick: 'K'",
+             "You made it to get out! Hats off to you! :)"
             ];
 var textFrame = 0
 
@@ -156,15 +168,37 @@ function Message(text, x, y) {
 Message.prototype.render = function() {
     ctx = gameArea.context;
     ctx.font = "12px Merienda"
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = "white";
     ctx.fillText(this.text, this.x, this.y);
 }
 
 Message.prototype.zero = function() {
     textFrame += 1;
-    if (textFrame === 100) {
+    if (textFrame === 200) {
       textFrame = 0;
       msgs[0].text = texts[0];
       msgs[1].text = texts[0];
+      msgs[2].text = texts[0];
+      msgs[3].text = texts[0];
     }
+}
+
+var sounds = [];
+
+
+function Sound(src, volume, loop) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.volume = volume;
+    this.sound.loop = loop;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }    
 }
