@@ -113,6 +113,7 @@ function main() {
     gameArea.clear();
     map.tileCreator(0);
     map.tileCreator(1);
+    isNonWalkableAreaFilled = true;
     collisionDetection();
     update(delta/1000);
     renderItems();
@@ -154,28 +155,28 @@ function update(modifier) {
       msgs[0].text = texts[14];
     }
     if (gameArea.key && gameArea.key == 37 && crashLeft === false) {
-      hero.sourceY = characterTiles[14].y;
+      hero.sourceY = 16;
       hero.sourceX = spriteTiles.coordinatesLeft[spriteTiles.frameLeft];
       hero.x -= hero.speed * modifier;
       spriteTiles.frameLeft = (spriteTiles.frameLeft + 1) % spriteTiles.coordinatesLeft.length;
       sounds[4].play();
     }
     if (gameArea.key && gameArea.key == 39 && crashRight === false) {
-      hero.sourceY = characterTiles[24].y;
+      hero.sourceY = 32;
       hero.sourceX = spriteTiles.coordinatesRight[spriteTiles.frameRight];
       hero.x += hero.speed * modifier;
       spriteTiles.frameRight = (spriteTiles.frameRight + 1) % spriteTiles.coordinatesRight.length;
       sounds[4].play();
     }
     if (gameArea.key && gameArea.key == 38 && crashTop === false) {
-      hero.sourceY = characterTiles[37].y;
+      hero.sourceY = 48;
       hero.sourceX = spriteTiles.coordinatesTop[spriteTiles.frameTop];
       hero.y -= hero.speed * modifier; 
       spriteTiles.frameTop = (spriteTiles.frameTop + 1) % spriteTiles.coordinatesTop.length;
       sounds[4].play();
     }
     if (gameArea.key && gameArea.key == 40 && crashBottom === false) {
-      hero.sourceY = characterTiles[0].y;
+      hero.sourceY = 0;
       hero.sourceX = spriteTiles.coordinatesBottom[spriteTiles.frameBottom];
       hero.y += hero.speed * modifier; 
       spriteTiles.frameBottom = (spriteTiles.frameBottom + 1) % spriteTiles.coordinatesBottom.length;
@@ -203,8 +204,8 @@ function update(modifier) {
       talkToNpc();
     }
     if (gameArea.key && gameArea.key == 72) {
-      msgs[2].text = texts[12];
-      msgs[3].text = texts[13];
+      msgs[0].text = texts[12];
+      msgs[1].text = texts[13];
       textFrame = -600;
     }
     if (gameArea.key === false) {
@@ -370,7 +371,7 @@ function afterActon() {
     items[10].acted = 1;
     msgs[0].text = texts[6];
     msgs[1].text = texts[7];
-    textFrame = -1000;
+    textFrame = -600;
   }
   if (items[3].acted === 1 && stepTwo) {
     stepTwo = false;
@@ -406,10 +407,9 @@ function startGame() {
     sounds[3] = new Sound("sounds/switch.wav", 1, false);
     sounds[4] = new Sound("sounds/foot.wav", 1, false);
     sounds[5] = new Sound("sounds/background.mp3", 1, true);
+    sounds[5].play();
     then = Date.now();
     gameArea.start();
-    map.tilePusher(0);
-    map.tilePusher(1);
     hero = new Hero(characterAtlas, 16, 0, 16, 16, 0, 112, 16, 16, 0, "hero", 0);
     npcs[0] = new Hero(characterAtlas, 64, 0, 16, 16, 272, 160, 16, 16, 1, "npc", 0);
     items[0] = new Item(otherAtlas, 0, 0, 16, 16, 64, 304, 16, 16, 1, "door", false, 0);
@@ -420,9 +420,9 @@ function startGame() {
     items[5] = new Item(otherAtlas, 0, 64, 16, 16, 176, 336, 16, 16, 1, "torch", true, 0);
     items[6] = new Item(otherAtlas, 0, 0, 16, 16, 416, 64, 16, 16, 1, "door", false, 0);
     items[7] = new Item(otherAtlas, 0, 64, 16, 16, 48, 336, 16, 16, 1, "torch", true, 0);
-    items[8] = new Item(itemAtlas, 96, 0, 32, 32, 16, 16, 32, 32, 0, "item", false, 2);
-    items[9] = new Item(itemAtlas, 128, 0, 32, 32, 48, 16, 32, 32, 0, "item", false, 2);
-    items[10] = new Item(itemAtlas, 192, 32, 32, 32, 80, 16, 32, 32, 0, "item", false, 2);
+    items[8] = new Item(itemAtlas, 96, 0, 32, 32, 16, 16, 24, 24, 0, "item", false, 2);
+    items[9] = new Item(itemAtlas, 128, 0, 32, 32, 48, 16, 24, 24, 0, "item", false, 2);
+    items[10] = new Item(itemAtlas, 192, 32, 32, 32, 80, 16, 24, 24, 0, "item", false, 2);
     items[11] = new Item(otherAtlas, 0, 64, 16, 16, 256, 256, 16, 16, 1, "torch", true, 0);
     items[12] = new Item(otherAtlas, 0, 64, 16, 16, 304, 256, 16, 16, 1, "torch", true, 0);
     items[13] = new Item(otherAtlas, 0, 64, 16, 16, 176, 272, 16, 16, 1, "torch", true, 0);
@@ -431,11 +431,8 @@ function startGame() {
     items[16] = new Item(otherAtlas, 96, 0, 16, 16, 240, 64, 16, 16, 1, "chest", true, 0);
     items[17] = new Item(otherAtlas, 96, 0, 16, 16, 464, 224, 16, 16, 1, "chest", false, 0);
     items[18] = new Item(otherAtlas, 48, 64, 16, 16, 336, 160, 16, 16, 1, "switch", true, 0);
-    msgs[0] = new Message(texts[0], 140, 15);
-    msgs[1] = new Message(texts[0], 140, 35);
-    msgs[2] = new Message(texts[0], 10, 480);
-    msgs[3] = new Message(texts[0], 10, 500);
-    msgs[2].text = texts[11];
-    textFrame = -600;
-    sounds[5].play();
+    msgs[0] = new Message(texts[0], 130, 15);
+    msgs[1] = new Message(texts[0], 130, 35);
+    msgs[0].text = texts[11];
+    textFrame = -300;
 }
