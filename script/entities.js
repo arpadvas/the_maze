@@ -4,7 +4,6 @@ characterAtlas.onload = function () {
   caReady = true;
 };
 characterAtlas.src = "pics/characters.png";
-//characterAtlas.src = "https://s12.postimg.org/3sw8ds5t9/characters.png";
 
 oaReady = false;
 var otherAtlas = new Image();
@@ -12,15 +11,13 @@ otherAtlas.onload = function () {
   oaReady = true;
 };
 otherAtlas.src = "pics/things.png";
-//otherAtlas.src = "https://s16.postimg.org/bbnbkj21h/things.png";
 
 iaReady = false;
 var itemAtlas = new Image();
 itemAtlas.onload = function () {
   iaReady = true;
 };
-//itemAtlas.src = "pics/items.png";
-itemAtlas.src = "https://s21.postimg.org/5gb1bt56v/items.png";
+itemAtlas.src = "pics/items.png";
 
 var spriteTiles = {
   coordinatesRight : [0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32],
@@ -53,16 +50,12 @@ var torchTiles = {
   frame : 0
 };
 
-var characterTiles = [
-                        {x: 0, y: 0}, {x: 16, y: 0}, {x: 32, y: 0}, {x: 48, y: 0}, {x: 64, y: 0}, {x: 80, y: 0}, {x: 96, y: 0}, {x: 112, y: 0}, {x: 128, y: 0}, {x: 144, y: 0}, {x: 160, y: 0}, {x: 176, y: 0},
-                        {x: 0, y: 16}, {x: 16, y: 16}, {x: 32, y: 16}, {x: 48, y: 16}, {x: 64, y: 16}, {x: 80, y: 16}, {x: 96, y: 16}, {x: 112, y: 16}, {x: 128, y: 16}, {x: 144, y: 16}, {x: 160, y: 16}, {x: 176, y: 16},
-                        {x: 0, y: 32}, {x: 16, y: 32}, {x: 32, y: 32}, {x: 48, y: 32}, {x: 64, y: 32}, {x: 80, y: 32}, {x: 96, y: 32}, {x: 112, y: 32}, {x: 128, y: 32}, {x: 144, y: 32}, {x: 160, y: 32}, {x: 176, y: 32},
-                        {x: 0, y: 48}, {x: 16, y: 48}, {x: 32, y: 48}, {x: 48, y: 48}, {x: 64, y: 48}, {x: 80, y: 48}, {x: 96, y: 48}, {x: 112, y: 48}, {x: 128, y: 48}, {x: 144, y: 48}, {x: 160, y: 48}, {x: 176, y: 48},
-                        {x: 0, y: 64}, {x: 16, y: 64}, {x: 32, y: 64}, {x: 48, y: 64}, {x: 64, y: 64}, {x: 80, y: 64}, {x: 96, y: 64}, {x: 112, y: 64}, {x: 128, y: 64}, {x: 144, y: 64}, {x: 160, y: 64}, {x: 176, y: 64},
-                        {x: 0, y: 80}, {x: 16, y: 80}, {x: 32, y: 80}, {x: 48, y: 80}, {x: 64, y: 80}, {x: 80, y: 80}, {x: 96, y: 80}, {x: 112, y: 80}, {x: 128, y: 80}, {x: 144, y: 80}, {x: 160, y: 80}, {x: 176, y: 80},
-                        {x: 0, y: 96}, {x: 16, y: 96}, {x: 32, y: 96}, {x: 48, y: 96}, {x: 64, y: 96}, {x: 80, y: 96}, {x: 96, y: 96}, {x: 112, y: 96}, {x: 128, y: 96}, {x: 144, y: 96}, {x: 160, y: 96}, {x: 176, y: 96},
-                        {x: 0, y: 112}, {x: 16, y: 112}, {x: 32, y: 112}, {x: 48, y: 112}, {x: 64, y: 112}, {x: 80, y: 112}, {x: 96, y: 112}, {x: 112, y: 112}, {x: 128, y: 112}, {x: 144, y: 112}, {x: 160, y: 112}, {x: 176, y: 112}
-                     ];
+var npcs = [];
+var items = [];
+var textFrame = 0
+var msgs = [];
+var sounds = [];
+
 
 function Entity(image, sourceX, sourceY, swidth, sheight, x, y, width, height, acted) {
     this.image = image;
@@ -86,8 +79,6 @@ Entity.prototype.acter = function() {
     this.acted = 1;
 }
 
-var npcs = [];
-
 function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type, acted) {
     Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height, acted);
     this.speed = 64;
@@ -96,8 +87,6 @@ function Hero(image, sourceX, sourceY, swidth, sheight, x, y, width, height, wal
       nonWalkableArea.push(new createNonWalkableArea(this.x, this.y, this.width, this.height));
     }
 }
-
-var items = [];
 
 function Item(image, sourceX, sourceY, swidth, sheight, x, y, width, height, walkable, type, doable, acted) {
     Entity.call(this, image, sourceX, sourceY, swidth, sheight, x, y, width, height, acted);
@@ -163,9 +152,6 @@ var texts = [
              "You made it to get out! Hats off to you! :)",
              "Sorry Sir but I can't help you more..."
             ];
-var textFrame = 0
-
-var msgs = [];
 
 function Message(text, x, y) {
     this.text = text;
@@ -175,24 +161,20 @@ function Message(text, x, y) {
 
 Message.prototype.render = function() {
     ctx = gameArea.context;
-    ctx.font = "12px Merienda"
+    ctx.font = "10px Merienda"
     ctx.fillStyle = "white";
     ctx.fillText(this.text, this.x, this.y);
 }
 
-Message.prototype.zero = function() {
+Message.prototype.zero = function() { //to set messages default
     textFrame += 1;
     if (textFrame === 300) {
       textFrame = 0;
-      msgs[0].text = texts[0];
-      msgs[1].text = texts[0];
-      msgs[2].text = texts[0];
-      msgs[3].text = texts[0];
+      for (i = 0; i < msgs.length; i += 1) {
+        msgs[i].text = texts[0];
+      }
     }
 }
-
-var sounds = [];
-
 
 function Sound(src, volume, loop) {
     this.sound = document.createElement("audio");
