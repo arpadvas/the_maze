@@ -1,5 +1,3 @@
-
-
 function collisionDetection() {
   for (i = 0; i < nonWalkableArea.length; i += 1) {
       crashWithLeft(nonWalkableArea[i]);
@@ -148,6 +146,7 @@ var isItemOpen = false;
 var isItemSwitched = false;
 var isItemBroken = false;
 var isGameOver = false;
+var isNpcTalked = false;
 
 function update(modifier) {
     if (hero.y < 0) {
@@ -182,26 +181,17 @@ function update(modifier) {
       spriteTiles.frameBottom = (spriteTiles.frameBottom + 1) % spriteTiles.coordinatesBottom.length;
       sounds[4].play();
     } 
-    if (gameArea.key && gameArea.key == 79) {
-      checkOpenable();
+    if (gameArea.key && (gameArea.key == 79 || gameArea.key == 83 || gameArea.key == 75)) {
+      checkIfItemActionable(gameArea.key);
     }
-    if (isItemOpen === true) {
-      openItem();
-    }
-    if (gameArea.key && gameArea.key == 83) {
-      checkSwitchable();
-    }
-    if (isItemSwitched === true) {
-      switchItem();
-    }
-    if (gameArea.key && gameArea.key == 75) {
-      checkKickable();
-    }
-    if (isItemBroken === true) {
-      kickItem();
+    if (isItemOpen === true || isItemSwitched === true || isItemBroken === true) {
+      performAction();
     }
     if (gameArea.key && gameArea.key == 84) {
-      talkToNpc();
+      if (isNpcTalked === false) {
+        talkToNpc();
+        isNpcTalked = true;
+      }
     }
     if (gameArea.key && gameArea.key == 72) {
       msgs[0].text = texts[12];
@@ -211,10 +201,107 @@ function update(modifier) {
     if (gameArea.key === false) {
       hero.sourceX = 16;
       hero.sourceY = 0;
+      isNpcTalked = false;
     }
 }
 
-function checkActionAble(item) {
+
+function talkToNpc() {
+  for (i = 0; i < npcs.length; i += 1) {
+      checkIfItemClose(npcs[i]);
+      if (isItemClose === true && npcs[i].type === "npc" && npcs[i].acted === 0) {
+        npcs[i].acter();
+        afterActon();
+        msgs[0].text = texts[6];
+        msgs[1].text = texts[7];
+        textFrame = -600;
+      }
+      else if (isItemClose === true && npcs[i].type === "npc" && npcs[i].acted === 1) {
+        msgs[0].text = texts[15];
+        textFrame = 0;
+      }
+    }
+}
+
+
+function checkIfItemActionable(key) {
+  for (i = 0; i < items.length; i += 1) {
+      checkIfItemClose(items[i]);
+      if (isItemClose === true && (items[i].type === "door" || items[i].type === "chest") && key === 79) {
+        isItemOpen = true;
+        break;
+      } 
+      else if (isItemClose === true && key === 79 && (items[i].type !== "door" || items[i].type !== "chest")) {
+        msgs[0].text = texts[1];
+        textFrame = 0;
+      }
+      if (isItemClose === true && items[i].type === "switch" && key === 83) {
+        isItemSwitched = true;
+        break;
+      }
+      else if (isItemClose === true && items[i].type != "switch" && key === 83) {
+        msgs[0].text = texts[2];
+        textFrame = 0;
+      }
+      if (isItemClose === true && items[i].type === "pot" && key === 75) {
+        isItemBroken = true;
+        break;
+      }
+      else if (isItemClose === true && items[i].type != "pot" && key === 75) {
+        msgs[0].text = texts[3];
+        textFrame = 0;
+      }
+  } 
+}
+
+
+function performAction() {
+    for (i = 0; i < items.length; i += 1) {
+      checkIfItemClose(items[i]);
+      if (isItemClose === true && isItemOpen === true && (items[i].type === "door" || items[i].type === "chest")) {
+        if (items[i].doable === true) {
+          items[i].open();
+          items[i].acter();
+          afterActon();
+          if (items[i].type === "door") {
+            sounds[1].play();
+          }
+          if (items[i].type === "chest") {
+            sounds[2].play();
+          }
+          if (items[i].type === "door") {
+            makeItemWalkable(items[i]);
+          }
+          break;
+        } else {
+          isItemOpen = false;
+          msgs[0].text = texts[9];
+          textFrame = 0;
+        }
+      }
+      if (isItemClose === true && items[i].type === "switch" && isItemSwitched === true) {
+        if (items[i].doable === true) {
+          items[i].switch();
+          items[i].acter();
+          afterActon();
+        } else {
+          isItemSwitched = false;
+          msgs[0].text = texts[10];
+          textFrame = 0;
+        }
+      }
+      if (isItemClose === true && items[i].type === "pot" && isItemBroken === true) {
+        sounds[0].play();
+        items[i].kick();
+        items[i].acter();
+        afterActon();
+        makeItemWalkable(items[i]);
+        break;
+      }
+  }
+}
+
+function checkIfItemClose(item) {
         var left = hero.x;
         var right = hero.x + (hero.width);
         var top = hero.y;
@@ -236,124 +323,6 @@ function makeItemWalkable(item) {
   for (i = 0; i < nonWalkableArea.length; i += 1) {
       if (nonWalkableArea[i].x === item.x && nonWalkableArea[i].y === item.y) {
         nonWalkableArea.splice(i, 1);
-      }
-    }
-}
-
-function talkToNpc() {
-  for (i = 0; i < npcs.length; i += 1) {
-      checkActionAble(npcs[i]);
-      if (isItemClose === true && npcs[i].type === "npc") {
-        npcs[i].acter();
-        afterActon();
-        break;
-      }
-      else if (isItemClose === true && npcs[i].type != "npc") {
-        msgs[0].text = texts[8];
-        textFrame = 0;
-      }
-    }
-}
-
-function checkOpenable() {
-  for (i = 0; i < items.length; i += 1) {
-      checkActionAble(items[i]);
-      if (isItemClose === true && (items[i].type === "door" || items[i].type === "chest")) {
-        isItemOpen = true;
-        break;
-      }
-      else if (isItemClose === true && (items[i].type != "door" || items[i].type != "chest")) {
-        msgs[0].text = texts[1];
-        textFrame = 0;
-      }
-    }
-}
-
-function openItem() {
-  for (i = 0; i < items.length; i += 1) {
-      checkActionAble(items[i]);
-      if (isItemClose === true && items[i].doable === true) {
-        if (items[i].type === "door") {
-            sounds[1].play();
-          }
-        if (items[i].type === "chest") {
-            sounds[2].play();
-          }
-        items[i].open();
-        items[i].acter();
-        afterActon();
-          if (items[i].type === "door") {
-            makeItemWalkable(items[i]);
-          }
-        break;
-      }
-      else if (isItemClose === true && items[i].doable === false) {
-        isItemOpen = false;
-        msgs[0].text = texts[9];
-        textFrame = 0;
-      }
-  }
-    
-}
-
-function checkSwitchable() {
-  for (i = 0; i < items.length; i += 1) {
-      checkActionAble(items[i]);
-      if (isItemClose === true && items[i].type === "switch") {
-        isItemSwitched = true;
-        break;
-      }
-      else if (isItemClose === true && items[i].type != "switch") {
-        msgs[0].text = texts[2];
-        textFrame = 0;
-      }
-    }
-}
-
-function switchItem() {
-  for (i = 0; i < items.length; i += 1) {
-      checkActionAble(items[i]);
-      if (isItemClose === true && items[i].doable === true) {
-        sounds[3].play();
-        items[i].switch();
-        items[i].acter();
-        afterActon();
-        break;
-      }
-      else if (isItemClose === true && items[i].doable === false){
-        isItemSwitched = false;
-        msgs[0].text = texts[10];
-        textFrame = 0;
-      }
-    }
-}
-
-function checkKickable() {
-  for (i = 0; i < items.length; i += 1) {
-      checkActionAble(items[i]);
-      if (isItemClose === true && items[i].type === "pot") {
-        isItemBroken = true;
-        break;
-      }
-      else if (isItemClose === true && items[i].type != "pot") {
-        msgs[0].text = texts[3];
-        textFrame = 0;
-      }
-    }
-}
-
-function kickItem() {
-  for (i = 0; i < items.length; i += 1) {
-      checkActionAble(items[i]);
-      if (isItemClose === true) {
-        sounds[0].play();
-        items[i].kick();
-        items[i].acter();
-        afterActon();
-          if (items[i].type === "pot") {
-            makeItemWalkable(items[i]);
-          }
-        break;
       }
     }
 }
