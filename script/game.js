@@ -281,6 +281,7 @@ function performAction() {
       }
       if (isItemClose === true && items[i].type === "switch" && isItemSwitched === true) {
         if (items[i].doable === true) {
+          sounds[0].play();
           items[i].switch();
           items[i].acter();
           afterActon();
