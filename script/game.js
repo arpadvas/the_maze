@@ -91,6 +91,10 @@ var gameArea = {
         this.canvas.width = 512;
         this.canvas.height = 512;
         this.context = this.canvas.getContext("2d");
+        this.context.mozImageSmoothingEnabled = false;
+        this.context.webkitImageSmoothingEnabled = false;
+        this.context.msImageSmoothingEnabled = false;
+        this.context.imageSmoothingEnabled = false;
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         requestAnimationFrame(main);
         window.addEventListener('keydown', function (e) {
