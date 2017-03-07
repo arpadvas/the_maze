@@ -1,1 +1,1 @@
-# untitled_game_project_by_Arpi
+# Simple 2D maze game.
